@@ -1,0 +1,87 @@
+{
+  "vm":[{
+    "name" : "vmx1",
+      "ram" : "4096",
+      "disk" : "5",
+      "cpu" : "2",
+      "network" : [
+      {
+        "name":"default",
+        "static-ip":"192.168.122.203",
+        "gw":"192.168.122.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"false",
+        "forward":"nat",
+        "dev":"eth0"
+      },
+      {
+        "name":"clm",
+        "static-ip":"192.168.101.203",
+        "gw":"192.168.101.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"true",
+        "dhcp_start":"192.168.101.225",
+        "dhcp_end":"192.168.101.254",
+        "forward":"isolation"
+      }
+    ]
+  },
+    {
+    "name" : "vmx2",
+      "ram" : "1024",
+      "disk" : "6",
+      "cpu" : "1",
+      "network" : [
+      {
+        "name":"default",
+        "static-ip":"192.168.122.123",
+        "gw":"192.168.122.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"false",
+        "dhcp_start":"",
+        "dhcp_end":"",
+        "forward":"nat"
+      },
+      {
+        "name":"pxe",
+        "static-ip":"192.168.1.204",
+        "gw":"192.168.1.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"false",
+        "dhcp_start":"",
+        "dhcp_end":"",
+        "forward":"nat"
+      }
+    ]
+  },
+    {
+    "name" : "vmx3",
+      "ram" : "1024",
+      "disk" : "6",
+      "cpu" : "1",
+      "network" : [
+      {
+        "name":"default",
+        "static-ip":"192.168.122.123",
+        "gw":"192.168.122.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"false",
+        "dhcp_start":"",
+        "dhcp_end":"",
+        "forward":"nat"
+      },
+      {
+        "name":"pxe2",
+        "static-ip":"192.168.11.204",
+        "gw":"192.168.11.1",
+        "netmask":"255.255.255.0",
+        "dhcp":"false",
+        "dhcp_start":"",
+        "dhcp_end":"",
+        "forward":"route",
+        "dev":"eth0"
+      }
+    ]
+  }
+  ]
+}
