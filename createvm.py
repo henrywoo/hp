@@ -5,9 +5,17 @@ import json
 import random
 import libvirt
 import subprocess as sp
-
-from jinja2 import Template
 from xml.etree import ElementTree
+
+class Template(object):
+    def __init__(self,s):
+        self.temp = s
+
+    def render(self,**kwargs):
+        str = self.temp
+        for key, value in kwargs.iteritems():
+            str = str.replace('{{'+key+'}}',value)
+        return str
 
 def randomUUID(conn):
     if hasattr(conn, "_virtinst__fake_conn_predictable"):
@@ -56,7 +64,7 @@ class vnetworkgenerator(object):
 
     def create(self):
         t = Template('<network><name>{{name}}</name><uuid>{{uuid}}</uuid>'
-                     '{%if forward%}<forward mode="{{mode}}" {{devstr}}/>{%endif%}<domain name="{{name}}"/>'
+                     '{{forwardstr}}<domain name="{{name}}"/>'
                      '<ip address="{{address}}" netmask="{{netmask}}">{{dhcpstr}}</ip></network>')
         dhcpstr=''
         if self.conf['dhcp'].lower()=='true':
@@ -72,19 +80,32 @@ class vnetworkgenerator(object):
                     and self.conf.has_key('dev'):
                 dev = self.conf['dev']
                 devstr='dev ="{}"'.format(dev)
+        forwardstr=''
+        if forward:
+            forwardstr = '<forward mode="{}" {}/>'.format(mode,devstr)
 
         xml = t.render(name=self.conf['name'],
                  uuid=generate_uuid(self.conn),
                  address=self.conf['gw'],
                  netmask=self.conf['netmask'],
                  dhcpstr=dhcpstr,
-                 forward=forward,
-                 mode = mode,
-                 devstr=devstr
+                 forwardstr=forwardstr
                  )
+        net = None
+
         net = self.conn.networkDefineXML(xml)
-        net.create()
-        net.setAutostart(1)
+        try:
+          net.create()
+          net.setAutostart(1)
+        except Exception, e:
+          if "is already in use" in str(e):
+              print "Error: Your network setting in json file conflicts " \
+                    "with the existing network. Please fix your json file."
+          if net is not None:
+              if net.isActive():
+                net.destroy()
+              net.undefine()
+          return None
         return net
 
 class vmgenerator(object):
@@ -170,9 +191,13 @@ class vmgenerator(object):
                     print "Creating network {}...".format(nwname)
                     try:
                         vn = vnetworkgenerator(s.getconn(),n)
-                        vn.create()
+                        r = vn.create()
+                        if r is None:
+                          print "Creating network {} failed.".format(nwname)
+                          sys.exit(0)
                     except Exception, e:
-                        print("Error generating network xml: %s" % str(e))
+                        print("Error:: %s" % str(e))
+                        sys.exit(0)
                     new_networks.append(nwname)
         ##########################################################################
 
@@ -188,9 +213,9 @@ class vmgenerator(object):
                 sys.exit(0)
 
     def createvm(self):
-        cmd='cd /var/lib/libvirt/images;sudo virt-install -n {{name}} --pxe --os-type=Linux ' \
+        cmd='sudo python /usr/bin/virt-install -n {{name}} --pxe --os-type=Linux ' \
               '--os-variant=ubuntutrusty --ram={{ram}} --vcpus={{cpu}} --disk ' \
-              'path={{name}}.img,bus=virtio,size={{disksize}} --graphics vnc ' \
+              'path=/var/lib/libvirt/images/{{name}}.img,bus=virtio,size={{disksize}} --graphics vnc ' \
               '{{networkstring}} --noreboot --force --quiet --noautoconsole'
         t = Template(cmd)
 
@@ -207,6 +232,7 @@ class vmgenerator(object):
                      networkstring=networkstring,
                      network=i['network'][0]['name']
                      )
+            #print cmdstr
             step1 = sp.call(cmdstr, shell=True)
             if step1 == 0:
               print 'VM {} has been created successfully.'.format(i['name'])

@@ -23,10 +23,10 @@ class vmterminator(object):
             if domain.isActive():
                 domain.destroy()
             vol = None
-            '''try:
+            try:
                 vol = self.conn.storageVolLookupByPath(imgpath)
             except:
-                print "Path '%s' is not managed. Deleting locally" % (imgpath)'''
+                print "Path '%s' is not managed. Deleting locally" % (imgpath)
             if vol is not None:
                 vol.delete(0)
             else:
@@ -55,14 +55,15 @@ class vmterminator(object):
 
     def delete_network(self, namelist):
         name2nw = {}
-        for i in  self.conn.listAllNetworks():
+        for i in self.conn.listAllNetworks():
             name2nw[i.name()] = i
         for name in namelist:
             if not name2nw.has_key(name):
                 print "Network {} doesn't exist!".format(name)
             else:
                 n = name2nw[name]
-                n.destroy()
+                if n.isActive():
+                    n.destroy()
                 n.undefine()
                 print "network {} is deleted successfully!".format(name)
 
@@ -77,7 +78,7 @@ if __name__ == "__main__":
               "\n\teg." \
               "\n\t\tsudo python deletevm.py vmx1 vmx2 vmx3\n" \
               "\t\tsudo python deletevm.py vmx1 vmx2 vmx3 -n pxe pxe2" \
-              "\n\tPlease use it carefully and do not forget to do backup if necessary."
+              "\n\tUse it carefully and remember to do backup if necessary."
 
         sys.exit(0)
     vmlist=[]
