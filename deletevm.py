@@ -77,7 +77,7 @@ if __name__ == "__main__":
               "\n\teg." \
               "\n\t\tsudo python deletevm.py vmx1 vmx2 vmx3\n" \
               "\t\tsudo python deletevm.py vmx1 vmx2 vmx3 -n pxe pxe2" \
-              "\n\tPlease use it carefully and do not forget to do backup if necBy default, tessary."
+              "\n\tPlease use it carefully and do not forget to do backup if necessary."
 
         sys.exit(0)
     vmlist=[]
