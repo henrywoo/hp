@@ -1,0 +1,13 @@
+(10:52:18 AM) Abrencillo, Delfin Pedrosa: ### Create System profile for each node
+
+cobbler system add --name=cloud1 --profile=hlinux-dists-cattleprod-x86_64 
+
+cobbler system edit --name=cloud1 --profile=hlinux-dists-cattleprod-x86_64 --kickstart=/var/lib/cobbler/kickstarts/hotrodkenobihlinux.seed --interface=eth0 --ip-address=192.168.124.101 --mac=00:00:00:00:01:01 --kopts="netcfg/choose_interface=eth0"
+cobbler system edit --name=cloud1 --power-type=virsh --power-id=cloud1 --power-address=192.168.51.14 --power-user=delfin
+(10:52:19 AM) Abrencillo, Delfin Pedrosa: ### PXE boot each node
+
+cobbler system edit --name=cloud1 --netboot-enabled=Y
+cobbler system poweroff --name=cloud1
+cobbler system poweron --name=cloud1
+cobbler system edit --name=cloud1 --netboot-enabled=N
+

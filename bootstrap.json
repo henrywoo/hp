@@ -1,0 +1,22 @@
+# power id is the same as node name.
+#
+# vm - virtual machine
+# bm - bare metal
+# nic - default NIC, eg em1, eth0, eth1
+{
+  "profile" : "hlinux-dists-cattleprod-x86_64",
+  "machine" : [
+  {
+    "node" : "vm", 
+    "name" : "aaa", 
+    "mac":"11111111111",
+    "ip":"192.168.122.100",
+    "nic":"eth0",
+    "power":["type":"virsh","address":"111","user":"xxx"]
+  },
+  {
+    "node" : "bm",
+    "power": ["type": "ipmilan"],
+  },
+  ]
+}
