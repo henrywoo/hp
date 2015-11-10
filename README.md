@@ -1,6 +1,8 @@
 #Some utility tools
 
-> debug
+- debug
 
+```
 cd ~/.virtinst
 tail -f virt-install.log
+```
